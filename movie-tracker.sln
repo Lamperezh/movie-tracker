@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "movie-tracker", "movie-tracker\movie-tracker.csproj", "{F3E030DE-6F54-482D-AAE6-EA2C3A17176E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F3E030DE-6F54-482D-AAE6-EA2C3A17176E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3E030DE-6F54-482D-AAE6-EA2C3A17176E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3E030DE-6F54-482D-AAE6-EA2C3A17176E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3E030DE-6F54-482D-AAE6-EA2C3A17176E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
