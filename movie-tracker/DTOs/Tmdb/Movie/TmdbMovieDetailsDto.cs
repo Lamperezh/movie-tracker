@@ -48,6 +48,9 @@ public class TmdbMovieDetailsDto
 
     [JsonPropertyName("revenue")]
     public long Revenue { get; set; }
+    
+    [JsonPropertyName("credits")]
+    public TmdbMovieCreditsResponseDto? Credits { get; set; }
 }
 
 public class TmdbGenreDto
@@ -57,4 +60,13 @@ public class TmdbGenreDto
 
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
+}
+
+public class TmdbMovieCreditsResponseDto
+{
+    [JsonPropertyName("cast")]
+    public List<TmdbCreditMemberDto> Cast { get; set; } = new();
+
+    [JsonPropertyName("crew")]
+    public List<TmdbCreditMemberDto> Crew { get; set; } = new();
 }

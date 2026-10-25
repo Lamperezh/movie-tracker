@@ -1,6 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
-using movie_tracker.DTOs.Tmdb;
+using movie_tracker.DTOs.Tmdb.Actor;
 using movie_tracker.DTOs.Tmdb.Movie;
 
 namespace movie_tracker.Services;
@@ -14,8 +14,7 @@ public class TmdbService
         _httpClientFactory = httpClientFactory;
     }
     
-    public async Task<TmdbMovieResponseDto?> DiscoverMoviesAsync(
-        TmdbDiscoverMoviesRequestDto filters)
+    public async Task<TmdbMovieResponseDto?> DiscoverMoviesAsync(TmdbDiscoverMoviesRequestDto filters)
     {
         var client = _httpClientFactory.CreateClient("TMDB");
 
@@ -97,7 +96,7 @@ public class TmdbService
         var client = _httpClientFactory.CreateClient("TMDB");
 
         var response = await client.GetAsync(
-            $"movie/{movieId}?language=uk-UA");
+            $"movie/{movieId}?language=uk-UA&append_to_response=credits");
 
         response.EnsureSuccessStatusCode();
 
@@ -123,6 +122,25 @@ public class TmdbService
         var json = await response.Content.ReadAsStringAsync();
 
         return JsonSerializer.Deserialize<TmdbMovieResponseDto>(
+            json,
+            new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+    }
+    
+    public async Task<TmdbPersonDto?> GetPersonDetailsAsync(int personId)
+    {
+        var client = _httpClientFactory.CreateClient("TMDB");
+
+        var response = await client.GetAsync(
+            $"person/{personId}?language=uk-UA&append_to_response=movie_credits");
+
+        response.EnsureSuccessStatusCode();
+
+        var json = await response.Content.ReadAsStringAsync();
+
+        return JsonSerializer.Deserialize<TmdbPersonDto>(
             json,
             new JsonSerializerOptions
             {
