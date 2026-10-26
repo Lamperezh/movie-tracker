@@ -37,3 +37,12 @@ public class TmdbCreditMemberDto
     [JsonPropertyName("known_for_department")]
     public string? KnownForDepartment { get; set; }
 }
+
+public class TmdbCreditsResponseDto
+{
+    [JsonPropertyName("cast")]
+    public List<TmdbCreditMemberDto> Cast { get; set; } = new();
+
+    [JsonPropertyName("crew")]
+    public List<TmdbCreditMemberDto> Crew { get; set; } = new();
+}

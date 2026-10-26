@@ -33,4 +33,7 @@ public class TmdbPersonDto
     
     [JsonPropertyName("movie_credits")]
     public TmdbMovieCreditsDto? MovieCredits { get; set; }
+    
+    [JsonPropertyName("tv_credits")]
+    public TmdbTvCreditsDto? TvCredits { get; set; }
 }
