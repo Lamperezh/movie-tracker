@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using movie_tracker.Data;
 using movie_tracker.DTOs.User;
 using movie_tracker.Models;
 
@@ -8,71 +10,87 @@ namespace movie_tracker.Controllers;
 [ApiController]
 public class UsersController : ControllerBase
 {
-    private static readonly List<User> Users =
-    [
-        new User
-        {
-            Id = 1,
-            Username = "john_doe",
-            Email = "john@example.com"
-        },
-        new User
-        {
-            Id = 2,
-            Username = "jane_smith",
-            Email = "jane@example.com"
-        }
-    ];
-    
-    [HttpGet]
-    public ActionResult<IEnumerable<UserDto>> GetAll()
+    private readonly AppDbContext _context;
+
+    public UsersController(AppDbContext context)
     {
-        var users = Users.Select(user => new UserDto
-        {
-            Id = user.Id,
-            Username = user.Username,
-            Email = user.Email
-        });
+        _context = context;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
+    {
+        var users = await _context.Users
+            .Select(user => new UserDto
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email
+            })
+            .ToListAsync();
 
         return Ok(users);
     }
-    
-    [HttpGet("{id}")]
-    public ActionResult<UserDto> GetById(int id)
+
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<UserDto>> GetById(int id)
     {
-        var user = Users.FirstOrDefault(user => user.Id == id);
+        if (id <= 0)
+            return BadRequest("User ID must be greater than 0.");
+
+        var user = await _context.Users
+            .Where(user => user.Id == id)
+            .Select(user => new UserDto
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email
+            })
+            .FirstOrDefaultAsync();
 
         if (user == null)
-        {
             return NotFound();
-        }
 
-        var userDto = new UserDto
-        {
-            Id = user.Id,
-            Username = user.Username,
-            Email = user.Email
-        };
-
-        return Ok(userDto);
+        return Ok(user);
     }
-    
+
     [HttpPost]
-    public ActionResult<UserDto> Create(CreateUserDto dto)
+    public async Task<ActionResult<UserDto>> Create(CreateUserDto dto)
     {
+        if (string.IsNullOrWhiteSpace(dto.UserName))
+            return BadRequest("UserName is required.");
+
+        if (string.IsNullOrWhiteSpace(dto.Email))
+            return BadRequest("Email is required.");
+
+        var UserName = dto.UserName.Trim();
+        var email = dto.Email.Trim();
+
+        var UserNameExists = await _context.Users
+            .AnyAsync(user => user.UserName == UserName);
+
+        if (UserNameExists)
+            return Conflict("UserName is already taken.");
+
+        var emailExists = await _context.Users
+            .AnyAsync(user => user.Email == email);
+
+        if (emailExists)
+            return Conflict("Email is already registered.");
+
         var user = new User
         {
-            Id = Users.Count == 0 ? 1 : Users.Max(user => user.Id) + 1,
-            Username = dto.Username,
-            Email = dto.Email
+            UserName = UserName,
+            Email = email
         };
 
-        Users.Add(user);
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
 
         var userDto = new UserDto
         {
             Id = user.Id,
-            Username = user.Username,
+            UserName = user.UserName,
             Email = user.Email
         };
 
@@ -81,41 +99,71 @@ public class UsersController : ControllerBase
             new { id = user.Id },
             userDto);
     }
-    
-    [HttpPut("{id}")]
-    public ActionResult<UserDto> Update(int id, UpdateUserDto dto)
+
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult<UserDto>> Update(int id, UpdateUserDto dto)
     {
-        var user = Users.FirstOrDefault(user => user.Id == id);
+        if (id <= 0)
+            return BadRequest("User ID must be greater than 0.");
+
+        if (string.IsNullOrWhiteSpace(dto.UserName))
+            return BadRequest("UserName is required.");
+
+        if (string.IsNullOrWhiteSpace(dto.Email))
+            return BadRequest("Email is required.");
+
+        var user = await _context.Users.FindAsync(id);
 
         if (user == null)
-        {
             return NotFound();
-        }
 
-        user.Username = dto.Username;
-        user.Email = dto.Email;
+        var UserName = dto.UserName.Trim();
+        var email = dto.Email.Trim();
+
+        var UserNameExists = await _context.Users
+            .AnyAsync(existing =>
+                existing.Id != id &&
+                existing.UserName == UserName);
+
+        if (UserNameExists)
+            return Conflict("UserName is already taken.");
+
+        var emailExists = await _context.Users
+            .AnyAsync(existing =>
+                existing.Id != id &&
+                existing.Email == email);
+
+        if (emailExists)
+            return Conflict("Email is already registered.");
+
+        user.UserName = UserName;
+        user.Email = email;
+
+        await _context.SaveChangesAsync();
 
         var userDto = new UserDto
         {
             Id = user.Id,
-            Username = user.Username,
+            UserName = user.UserName,
             Email = user.Email
         };
 
         return Ok(userDto);
     }
-    
-    [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
     {
-        var user = Users.FirstOrDefault(user => user.Id == id);
+        if (id <= 0)
+            return BadRequest("User ID must be greater than 0.");
+
+        var user = await _context.Users.FindAsync(id);
 
         if (user == null)
-        {
             return NotFound();
-        }
 
-        Users.Remove(user);
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
