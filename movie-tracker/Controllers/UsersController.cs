@@ -1,6 +1,8 @@
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using movie_tracker.Data;
 using movie_tracker.DTOs.User;
 using movie_tracker.Models;
 
@@ -8,24 +10,25 @@ namespace movie_tracker.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Roles = "Administrator")]
 public class UsersController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly UserManager<User> _userManager;
 
-    public UsersController(AppDbContext context)
+    public UsersController(UserManager<User> userManager)
     {
-        _context = context;
+        _userManager = userManager;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
     {
-        var users = await _context.Users
+        var users = await _userManager.Users
             .Select(user => new UserDto
             {
                 Id = user.Id,
-                Username = user.Username,
-                Email = user.Email
+                Username = user.UserName ?? string.Empty,
+                Email = user.Email ?? string.Empty
             })
             .ToListAsync();
 
@@ -38,66 +41,19 @@ public class UsersController : ControllerBase
         if (id <= 0)
             return BadRequest("User ID must be greater than 0.");
 
-        var user = await _context.Users
-            .Where(user => user.Id == id)
-            .Select(user => new UserDto
-            {
-                Id = user.Id,
-                Username = user.Username,
-                Email = user.Email
-            })
-            .FirstOrDefaultAsync();
+        var user = await _userManager.FindByIdAsync(id.ToString());
 
         if (user == null)
             return NotFound();
 
-        return Ok(user);
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<UserDto>> Create(CreateUserDto dto)
-    {
-        if (string.IsNullOrWhiteSpace(dto.Username))
-            return BadRequest("Username is required.");
-
-        if (string.IsNullOrWhiteSpace(dto.Email))
-            return BadRequest("Email is required.");
-
-        var username = dto.Username.Trim();
-        var email = dto.Email.Trim();
-
-        var usernameExists = await _context.Users
-            .AnyAsync(user => user.Username == username);
-
-        if (usernameExists)
-            return Conflict("Username is already taken.");
-
-        var emailExists = await _context.Users
-            .AnyAsync(user => user.Email == email);
-
-        if (emailExists)
-            return Conflict("Email is already registered.");
-
-        var user = new User
-        {
-            Username = username,
-            Email = email
-        };
-
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
-
         var userDto = new UserDto
         {
             Id = user.Id,
-            Username = user.Username,
-            Email = user.Email
+            Username = user.UserName ?? string.Empty,
+            Email = user.Email ?? string.Empty
         };
 
-        return CreatedAtAction(
-            nameof(GetById),
-            new { id = user.Id },
-            userDto);
+        return Ok(userDto);
     }
 
     [HttpPut("{id:int}")]
@@ -106,46 +62,45 @@ public class UsersController : ControllerBase
         if (id <= 0)
             return BadRequest("User ID must be greater than 0.");
 
-        if (string.IsNullOrWhiteSpace(dto.Username))
+        if (string.IsNullOrWhiteSpace(dto.UserName))
             return BadRequest("Username is required.");
 
         if (string.IsNullOrWhiteSpace(dto.Email))
             return BadRequest("Email is required.");
 
-        var user = await _context.Users.FindAsync(id);
+        var user = await _userManager.FindByIdAsync(id.ToString());
 
         if (user == null)
             return NotFound();
 
-        var username = dto.Username.Trim();
+        var username = dto.UserName.Trim();
         var email = dto.Email.Trim();
 
-        var usernameExists = await _context.Users
-            .AnyAsync(existing =>
-                existing.Id != id &&
-                existing.Username == username);
+        var existingUsername = await _userManager.FindByNameAsync(username);
 
-        if (usernameExists)
+        if (existingUsername != null && existingUsername.Id != id)
             return Conflict("Username is already taken.");
 
-        var emailExists = await _context.Users
-            .AnyAsync(existing =>
-                existing.Id != id &&
-                existing.Email == email);
+        var existingEmail = await _userManager.FindByEmailAsync(email);
 
-        if (emailExists)
+        if (existingEmail != null && existingEmail.Id != id)
             return Conflict("Email is already registered.");
 
-        user.Username = username;
+        user.UserName = username;
         user.Email = email;
 
-        await _context.SaveChangesAsync();
+        var result = await _userManager.UpdateAsync(user);
+
+        if (!result.Succeeded)
+        {
+            return BadRequest(result.Errors.Select(error => error.Description));
+        }
 
         var userDto = new UserDto
         {
             Id = user.Id,
-            Username = user.Username,
-            Email = user.Email
+            Username = user.UserName ?? string.Empty,
+            Email = user.Email ?? string.Empty
         };
 
         return Ok(userDto);
@@ -157,13 +112,17 @@ public class UsersController : ControllerBase
         if (id <= 0)
             return BadRequest("User ID must be greater than 0.");
 
-        var user = await _context.Users.FindAsync(id);
+        var user = await _userManager.FindByIdAsync(id.ToString());
 
         if (user == null)
             return NotFound();
 
-        _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
+        var result = await _userManager.DeleteAsync(user);
+
+        if (!result.Succeeded)
+        {
+            return BadRequest(result.Errors.Select(error => error.Description));
+        }
 
         return NoContent();
     }

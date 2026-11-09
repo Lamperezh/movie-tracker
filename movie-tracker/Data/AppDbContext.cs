@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -6,14 +8,12 @@ using movie_tracker.Models;
 
 namespace movie_tracker.Data;
 
-
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<User, IdentityRole<int>, int>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
 
-    public DbSet<User> Users => Set<User>();
     public DbSet<Media> Media => Set<Media>();
     public DbSet<WatchlistItem> WatchlistItems => Set<WatchlistItem>();
     public DbSet<Review> Reviews => Set<Review>();
@@ -58,7 +58,8 @@ public class AppDbContext : DbContext
             e.HasOne(x => x.User)
                 .WithMany(x => x.WatchlistItems)
                 .HasForeignKey(x => x.UserId)
-                .IsRequired();
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Review>(e =>
@@ -68,7 +69,8 @@ public class AppDbContext : DbContext
             e.HasOne(x => x.User)
                 .WithMany(x => x.Reviews)
                 .HasForeignKey(x => x.UserId)
-                .IsRequired();
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             e.Property(x => x.Rating).IsRequired();
             e.Property(x => x.CreatedAt).IsRequired();

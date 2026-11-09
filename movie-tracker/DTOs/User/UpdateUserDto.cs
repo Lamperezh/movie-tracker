@@ -1,7 +1,13 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace movie_tracker.DTOs.User;
 
 public class UpdateUserDto
 {
-    public string Username { get; set; } = string.Empty;
+    [Required]
+    public string UserName { get; set; } = string.Empty;
+
+    [Required]
+    [EmailAddress]
     public string Email { get; set; } = string.Empty;
 }
