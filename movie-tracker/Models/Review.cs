@@ -1,4 +1,6 @@
-﻿namespace movie_tracker.Models;
+﻿using movie_tracker.Enums;
+
+namespace movie_tracker.Models;
 
 public class Review
 {

@@ -1,7 +1,9 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using movie_tracker.Data;
 using movie_tracker.DTOs.Review;
+using movie_tracker.Enums;
 using movie_tracker.Models;
 
 namespace movie_tracker.Controllers;
@@ -79,15 +81,6 @@ public class ReviewsController : ControllerBase
         if (userId <= 0)
             return BadRequest("User ID must be greater than 0.");
 
-        if (dto.TmdbId <= 0)
-            return BadRequest("TMDB ID must be greater than 0.");
-
-        if (!Enum.IsDefined(typeof(MediaType), dto.Type))
-            return BadRequest("Invalid media type.");
-
-        if (dto.Rating < 1 || dto.Rating > 10)
-            return BadRequest("Rating must be between 1 and 10.");
-
         var userExists = await _context.Set<User>()
             .AnyAsync(x => x.Id == userId);
 
@@ -129,16 +122,7 @@ public class ReviewsController : ControllerBase
     {
         if (id <= 0 || userId <= 0)
             return BadRequest("Review ID and User ID must be greater than 0.");
-
-        if (dto.TmdbId <= 0)
-            return BadRequest("TMDB ID must be greater than 0.");
-
-        if (!Enum.IsDefined(typeof(MediaType), dto.Type))
-            return BadRequest("Invalid media type.");
-
-        if (dto.Rating < 1 || dto.Rating > 10)
-            return BadRequest("Rating must be between 1 and 10.");
-
+        
         var review = await _context.Reviews
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
 

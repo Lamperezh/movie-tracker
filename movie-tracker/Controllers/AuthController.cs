@@ -6,6 +6,7 @@ using movie_tracker.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using movie_tracker.DTOs.Auth;
 
 namespace movie_tracker.Controllers;
 
@@ -23,7 +24,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+    public async Task<IActionResult> Register([FromBody] AuthRegisterDto dto)
     {
         var user = new User { UserName = dto.Email, Email = dto.Email };
         var result = await _userManager.CreateAsync(user, dto.Password);
@@ -35,7 +36,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginDto dto)
+    public async Task<IActionResult> Login([FromBody] AuthLoginDto dto)
     {
         var user = await _userManager.FindByEmailAsync(dto.Email);
 

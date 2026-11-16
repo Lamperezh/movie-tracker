@@ -1,3 +1,4 @@
+using movie_tracker.Enums;
 using movie_tracker.Models;
 
 namespace movie_tracker.DTOs.WatchlistItem;

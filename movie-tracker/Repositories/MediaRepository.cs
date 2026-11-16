@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using movie_tracker.Data;
+using movie_tracker.Enums;
 using movie_tracker.Models;
 
 namespace movie_tracker.Repositories;

@@ -1,10 +1,6 @@
-namespace movie_tracker.Models;
+using movie_tracker.Enums;
 
-public enum MediaType
-{
-    Movie = 1,
-    Series = 2
-}
+namespace movie_tracker.Models;
 
 public class Media
 {

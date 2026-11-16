@@ -1,3 +1,5 @@
+using movie_tracker.Enums;
+
 namespace movie_tracker.Models;
 
 public class WatchlistItem
@@ -20,13 +22,4 @@ public class WatchlistItem
     public DateTime AddedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? UpdatedAt { get; set; }
-}
-
-public enum WatchStatus
-{
-    Planned,
-    Watching,
-    Completed,
-    Dropped,
-    OnHold
 }

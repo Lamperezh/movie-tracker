@@ -1,4 +1,4 @@
-﻿using movie_tracker.DTOs;
+﻿using movie_tracker.DTOs.Media;
 
 namespace movie_tracker.Services;
 

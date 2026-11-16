@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -61,12 +60,6 @@ public class UsersController : ControllerBase
     {
         if (id <= 0)
             return BadRequest("User ID must be greater than 0.");
-
-        if (string.IsNullOrWhiteSpace(dto.UserName))
-            return BadRequest("Username is required.");
-
-        if (string.IsNullOrWhiteSpace(dto.Email))
-            return BadRequest("Email is required.");
 
         var user = await _userManager.FindByIdAsync(id.ToString());
 

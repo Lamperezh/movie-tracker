@@ -4,16 +4,25 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using FluentValidation;
 using movie_tracker.Data;
+using movie_tracker.Filters;
+using movie_tracker.Middleware;
 using movie_tracker.Models;
 using movie_tracker.Repositories;
 using movie_tracker.Services;
+using movie_tracker.Validators.WatchlistItem;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers(options => {
+    options.Filters.AddService<FluentValidationFilter>();
+});
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddValidatorsFromAssemblyContaining<CreateWatchlistItemValidator>();
+builder.Services.AddScoped<FluentValidationFilter>();
 
 // Configure Swagger with JWT authentication.
 builder.Services.AddSwaggerGen(c =>
@@ -64,7 +73,14 @@ builder.Services.AddHttpClient("TMDB", client =>
 });
 
 // Configure ASP.NET Core Identity.
-builder.Services.AddIdentity<User, IdentityRole<int>>()
+builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
+    {
+        options.Password.RequiredLength = 6;
+        options.Password.RequireDigit = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireNonAlphanumeric = false;
+    })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
@@ -94,6 +110,8 @@ builder.Services.AddAuthentication(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

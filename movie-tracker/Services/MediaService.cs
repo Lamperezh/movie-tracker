@@ -1,4 +1,5 @@
-﻿using movie_tracker.DTOs;
+﻿using movie_tracker.DTOs.Media;
+using movie_tracker.Enums;
 using movie_tracker.Models;
 using movie_tracker.Repositories;
 
