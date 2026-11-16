@@ -10,7 +10,6 @@ public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
 
-    // Внедряем сервис вместо UserManager и Configuration
     public AuthController(IAuthService authService)
     {
         _authService = authService;
