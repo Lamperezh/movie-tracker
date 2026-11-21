@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 
 namespace movie_tracker.Middleware;
 
@@ -19,45 +20,37 @@ public class ExceptionHandlingMiddleware
         {
             await _next(context);
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            _logger.LogError(exception, "An unhandled exception occurred.");
-
-            context.Response.ContentType = "application/json";
-
-            int statusCode;
-            string message;
-
-            if (exception is KeyNotFoundException)
-            {
-                statusCode = (int)HttpStatusCode.NotFound; //404
-                message = "Resource not found.";
-            }
-            else if (exception is UnauthorizedAccessException)
-            {
-                statusCode = (int)HttpStatusCode.Forbidden; //403
-                message = "Access denied.";
-            }
-            else if (exception is ArgumentException)
-            {
-                statusCode = (int)HttpStatusCode.BadRequest; //400
-                message = "Invalid request data.";
-            }
-            else
-            {
-                statusCode = (int)HttpStatusCode.InternalServerError; //500
-                message = "An internal server error occurred.";
-            }
-
-            context.Response.StatusCode = statusCode;
-
-            var response = new
-            {
-                StatusCode = statusCode,
-                Message = message
-            };
-
-            await context.Response.WriteAsJsonAsync(response);
+            _logger.LogError(ex, "Сталася помилка: {Message}", ex.Message);
+            await HandleExceptionAsync(context, ex);
         }
+    }
+
+    private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
+    {
+        context.Response.ContentType = "application/json";
+
+        // Універсальний мапінг C# винятків у HTTP статус-коди
+        var statusCode = exception switch
+        {
+            ArgumentException => (int)HttpStatusCode.BadRequest,            // 400 (Невірні дані)
+            KeyNotFoundException => (int)HttpStatusCode.NotFound,           // 404 (Не знайдено)
+            InvalidOperationException => (int)HttpStatusCode.Conflict,      // 409 (Конфлікт, наприклад, дублікат)
+            UnauthorizedAccessException => (int)HttpStatusCode.Unauthorized,// 401 (Немає доступу)
+            _ => (int)HttpStatusCode.InternalServerError                    // 500 (Все інше)
+        };
+
+        context.Response.StatusCode = statusCode;
+
+        // Формуємо красиву та зрозумілу відповідь для клієнта
+        var response = new
+        {
+            StatusCode = statusCode,
+            Error = exception.Message // Сюди потрапить текст, який ми передали в throw new...
+        };
+
+        var jsonResponse = JsonSerializer.Serialize(response);
+        await context.Response.WriteAsync(jsonResponse);
     }
 }
