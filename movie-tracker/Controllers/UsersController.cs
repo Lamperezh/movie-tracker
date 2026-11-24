@@ -1,13 +1,14 @@
+using System.Security.Claims;
+using Business.DTOs.User;
+using Business.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using movie_tracker.DTOs.User;
-using movie_tracker.Services;
 
 namespace movie_tracker.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize(Roles = "Administrator")]
+[Authorize]
 public class UsersController : ControllerBase
 {
     private readonly IUsersService _usersService;
@@ -18,6 +19,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "Administrator")]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
     {
         return Ok(await _usersService.GetAllAsync());
@@ -26,19 +28,46 @@ public class UsersController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<UserDto>> GetById(int id)
     {
+        if (!CanAccessUser(id))
+        {
+            return Forbid();
+        }
+
         return Ok(await _usersService.GetByIdAsync(id));
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult<UserDto>> Update(int id, UpdateUserDto dto)
+    public async Task<ActionResult<UserDto>> Update(
+        int id,
+        UpdateUserDto dto)
     {
+        if (!CanAccessUser(id))
+        {
+            return Forbid();
+        }
+
         return Ok(await _usersService.UpdateAsync(id, dto));
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Delete(int id)
     {
         await _usersService.DeleteAsync(id);
+
         return NoContent();
+    }
+
+    private bool CanAccessUser(int id)
+    {
+        if (User.IsInRole("Administrator"))
+        {
+            return true;
+        }
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        return int.TryParse(userId, out var currentUserId)
+               && currentUserId == id;
     }
 }

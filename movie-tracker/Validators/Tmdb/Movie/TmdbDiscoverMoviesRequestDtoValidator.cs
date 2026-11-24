@@ -1,5 +1,5 @@
 using FluentValidation;
-using movie_tracker.DTOs.Tmdb.Movie;
+using Persistence.DTOs.Tmdb.Movie;
 
 namespace movie_tracker.Validators.Tmdb.Movie;
 

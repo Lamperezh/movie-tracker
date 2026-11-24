@@ -1,5 +1,5 @@
+using Business.DTOs.Media;
 using FluentValidation;
-using movie_tracker.DTOs.Media;
 
 namespace movie_tracker.Validators.Media;
 

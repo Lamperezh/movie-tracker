@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using movie_tracker.Services;
+using Persistence.Services;
 
 namespace movie_tracker.Controllers;
 

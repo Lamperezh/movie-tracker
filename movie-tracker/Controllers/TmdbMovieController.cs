@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using movie_tracker.DTOs.Tmdb.Movie;
-using movie_tracker.Services;
+using Persistence.DTOs.Tmdb.Movie;
+using Persistence.Services;
 
 namespace movie_tracker.Controllers;
 

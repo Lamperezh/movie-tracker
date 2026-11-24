@@ -43,11 +43,11 @@ public class ExceptionHandlingMiddleware
 
         context.Response.StatusCode = statusCode;
 
-        // Формуємо красиву та зрозумілу відповідь для клієнта
+        // Формуємо відповідь для клієнта
         var response = new
         {
             StatusCode = statusCode,
-            Error = exception.Message // Сюди потрапить текст, який ми передали в throw new...
+            Error = exception.Message
         };
 
         var jsonResponse = JsonSerializer.Serialize(response);

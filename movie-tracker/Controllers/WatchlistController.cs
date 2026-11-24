@@ -1,8 +1,7 @@
-
+using Business.DTOs.WatchlistItem;
+using Business.Enums;
+using Business.Services;
 using Microsoft.AspNetCore.Mvc;
-using movie_tracker.DTOs.WatchlistItem;
-using movie_tracker.Enums;
-using movie_tracker.Services;
 
 namespace movie_tracker.Controllers;
 

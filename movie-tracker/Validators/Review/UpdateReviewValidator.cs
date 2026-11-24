@@ -1,5 +1,5 @@
+using Business.DTOs.Review;
 using FluentValidation;
-using movie_tracker.DTOs.Review;
 
 namespace movie_tracker.Validators.Review;
 

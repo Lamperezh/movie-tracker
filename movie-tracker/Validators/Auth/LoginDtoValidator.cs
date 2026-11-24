@@ -1,6 +1,5 @@
+using Business.DTOs.Auth;
 using FluentValidation;
-using movie_tracker.DTOs;
-using movie_tracker.DTOs.Auth;
 
 namespace movie_tracker.Validators.Auth;
 

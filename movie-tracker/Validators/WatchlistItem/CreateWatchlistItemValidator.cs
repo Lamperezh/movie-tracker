@@ -1,5 +1,5 @@
+using Business.DTOs.WatchlistItem;
 using FluentValidation;
-using movie_tracker.DTOs.WatchlistItem;
 
 namespace movie_tracker.Validators.WatchlistItem;
 

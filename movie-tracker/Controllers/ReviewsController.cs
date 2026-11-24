@@ -1,7 +1,7 @@
+using Business.DTOs.Review;
+using Business.Enums;
+using Business.Services;
 using Microsoft.AspNetCore.Mvc;
-using movie_tracker.DTOs.Review;
-using movie_tracker.Enums;
-using movie_tracker.Services;
 
 namespace movie_tracker.Controllers;
 

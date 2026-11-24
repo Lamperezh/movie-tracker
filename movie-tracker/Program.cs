@@ -1,17 +1,16 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using Business;
+using Business.Models;
 using FluentValidation;
-using movie_tracker.Data;
 using movie_tracker.Filters;
 using movie_tracker.Middleware;
-using movie_tracker.Models;
-using movie_tracker.Repositories;
-using movie_tracker.Services;
 using movie_tracker.Validators.WatchlistItem;
+using Persistence;
+using Persistence.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -63,26 +62,9 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Register application services.
-builder.Services.AddScoped<TmdbService>();
-builder.Services.AddScoped<IMediaRepository, MediaRepository>();
-builder.Services.AddScoped<IMediaService, MediaService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IReviewsService, ReviewsService>();
-builder.Services.AddScoped<IUsersService, UsersService>();
-// Configure SQLite database connection.
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// Configure HTTP client for TMDB API.
-builder.Services.AddHttpClient("TMDB", client =>
-{
-    client.BaseAddress = new Uri("https://api.themoviedb.org/3/");
-    client.DefaultRequestHeaders.Authorization =
-        new System.Net.Http.Headers.AuthenticationHeaderValue(
-            "Bearer",
-            builder.Configuration["TMDB:ReadAccessToken"]);
-});
+// Register business and persistence dependencies.
+builder.Services.AddBusiness();
+builder.Services.AddPersistence(builder.Configuration);
 
 // Configure ASP.NET Core Identity.
 builder.Services.AddIdentity<User, IdentityRole<int>>(options =>

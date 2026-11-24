@@ -1,7 +1,7 @@
+using Business.DTOs.Media;
+using Business.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using movie_tracker.DTOs.Media;
-using movie_tracker.Services;
 
 namespace movie_tracker.Controllers;
 
