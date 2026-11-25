@@ -3,6 +3,7 @@ using Business.Enums;
 using Business.Models;
 using Business.Repositories;
 using Business.Services;
+using Business.Services.Interfaces;
 
 namespace Business.Services;
 
@@ -41,6 +42,29 @@ public class MediaService : IMediaService
         };
     }
 
+    public async Task<MediaDto?> GetMediaByTmdbIdAsync(int tmdbId, int type)
+    {
+        if (!Enum.IsDefined(typeof(MediaType), type))
+        {
+            throw new ArgumentException("Invalid media type.");
+        }
+
+        var media = await _repository.GetByTmdbIdAsync(
+            tmdbId,
+            (MediaType)type
+        );
+
+        if (media == null) return null;
+
+        return new MediaDto
+        {
+            Id = media.Id,
+            TmdbId = media.TmdbId,
+            Type = (int)media.Type,
+            OstLinks = media.OstLinks
+        };
+    }
+    
     public async Task<MediaDto> CreateMediaAsync(CreateMediaDto dto)
     {
         if (!Enum.IsDefined(typeof(MediaType), dto.Type))

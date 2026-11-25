@@ -1,7 +1,7 @@
 ﻿using Business.DTOs.Auth;
 using Microsoft.AspNetCore.Identity;
 
-namespace Business.Services;
+namespace Business.Services.Interfaces;
 
 public interface IAuthService
 {

@@ -93,4 +93,31 @@ public class TmdbTvController : ControllerBase
                 "Failed to fetch data from TMDB.");
         }
     }
+    
+    [HttpGet("tv/{tvId:int}/videos")]
+    public async Task<IActionResult> GetTvVideos(int tvId)
+    {
+        if (tvId <= 0)
+            return BadRequest("TV ID must be greater than 0.");
+
+        try
+        {
+            var videos = await _tmdbService.GetTvVideosAsync(tvId);
+
+            if (videos is null)
+            {
+                return StatusCode(
+                    StatusCodes.Status502BadGateway,
+                    "Invalid response from TMDB.");
+            }
+
+            return Ok(videos);
+        }
+        catch (HttpRequestException)
+        {
+            return StatusCode(
+                StatusCodes.Status502BadGateway,
+                "Failed to fetch data from TMDB.");
+        }
+    }
 }

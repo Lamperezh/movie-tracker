@@ -2,6 +2,7 @@ using Business.DTOs.WatchlistItem;
 using Business.Enums;
 using Business.Models;
 using Business.Repositories;
+using Business.Services.Interfaces;
 
 namespace Business.Services;
 

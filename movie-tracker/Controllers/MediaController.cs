@@ -1,5 +1,6 @@
 using Business.DTOs.Media;
 using Business.Services;
+using Business.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,6 +31,16 @@ public class MediaController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("tmdb/{tmdbId}")]
+    public async Task<ActionResult<MediaDto>> GetMediaByTmdbId(int tmdbId, [FromQuery] int type)
+    {
+        var result = await _mediaService.GetMediaByTmdbIdAsync(tmdbId, type);
+
+        if (result == null) return NotFound();
+
+        return Ok(result);
+    }
+    
     [Authorize]
     [HttpPost]
     public async Task<ActionResult<MediaDto>> CreateMedia(CreateMediaDto dto)

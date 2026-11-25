@@ -1,7 +1,7 @@
 ﻿using Business.DTOs.Review;
 using Business.Enums;
 
-namespace Business.Services;
+namespace Business.Services.Interfaces;
 
 public interface IReviewsService
 {

@@ -1,5 +1,6 @@
 ﻿using Business.DTOs.Auth;
 using Business.Services;
+using Business.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace movie_tracker.Controllers;

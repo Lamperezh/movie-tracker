@@ -95,4 +95,26 @@ public class TmdbService
         return await TmdbHelper.ReadResponseAsync<TmdbTvResponseDto>(
             response);
     }
+    
+    public async Task<TmdbVideosResponseDto?> GetMovieVideosAsync(int movieId)
+    {
+        var client = _httpClientFactory.CreateClient("TMDB");
+
+        var response = await client.GetAsync(
+            $"movie/{movieId}/videos?language=uk-UA");
+
+        return await TmdbHelper.ReadResponseAsync<TmdbVideosResponseDto>(
+            response);
+    }
+    
+    public async Task<TmdbVideosResponseDto?> GetTvVideosAsync(int tvId)
+    {
+        var client = _httpClientFactory.CreateClient("TMDB");
+
+        var response = await client.GetAsync(
+            $"tv/{tvId}/videos?language=uk-UA");
+
+        return await TmdbHelper.ReadResponseAsync<TmdbVideosResponseDto>(
+            response);
+    }
 }

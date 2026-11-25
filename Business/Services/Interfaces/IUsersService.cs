@@ -1,6 +1,6 @@
 ﻿using Business.DTOs.User;
 
-namespace Business.Services;
+namespace Business.Services.Interfaces;
 
 public interface IUsersService
 {

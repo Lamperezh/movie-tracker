@@ -93,4 +93,31 @@ public class TmdbMovieController : ControllerBase
                 "Failed to fetch data from TMDB.");
         }
     }
+    
+    [HttpGet("{movieId:int}/videos")]
+    public async Task<IActionResult> GetMovieVideos(int movieId)
+    {
+        if (movieId <= 0)
+            return BadRequest("Movie ID must be greater than 0.");
+
+        try
+        {
+            var videos = await _tmdbService.GetMovieVideosAsync(movieId);
+
+            if (videos is null)
+            {
+                return StatusCode(
+                    StatusCodes.Status502BadGateway,
+                    "Invalid response from TMDB.");
+            }
+
+            return Ok(videos);
+        }
+        catch (HttpRequestException)
+        {
+            return StatusCode(
+                StatusCodes.Status502BadGateway,
+                "Failed to fetch data from TMDB.");
+        }
+    }
 }
