@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Text.Json;
 using Business.Models;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Persistence.Data;
 
@@ -17,6 +17,7 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<int>, int>
     public DbSet<Media> Media => Set<Media>();
     public DbSet<WatchlistItem> WatchlistItems => Set<WatchlistItem>();
     public DbSet<Review> Reviews => Set<Review>();
+    public DbSet<CommentReaction> CommentReactions => Set<CommentReaction>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -72,8 +73,26 @@ public class AppDbContext : IdentityDbContext<User, IdentityRole<int>, int>
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
-            e.Property(x => x.Rating).IsRequired();
+            e.Property(x => x.Rating).IsRequired(false);
+            e.Property(x => x.Comment).IsRequired(false);
             e.Property(x => x.CreatedAt).IsRequired();
+        });
+
+        modelBuilder.Entity<CommentReaction>(e =>
+        {
+            e.HasIndex(x => new { x.ReviewId, x.UserId }).IsUnique();
+
+            e.HasOne(x => x.Review)
+                .WithMany(x => x.Reactions)
+                .HasForeignKey(x => x.ReviewId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            e.HasOne(x => x.User)
+                .WithMany(x => x.CommentReactions)
+                .HasForeignKey(x => x.UserId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

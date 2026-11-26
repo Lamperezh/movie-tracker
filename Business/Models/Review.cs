@@ -13,8 +13,12 @@ public class Review
 
     public MediaType Type { get; set; }
 
-    public int Rating { get; set; }
+    public int? Rating { get; set; }
+
     public string? Comment { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public ICollection<CommentReaction> Reactions { get; set; }
+        = new List<CommentReaction>();
 }

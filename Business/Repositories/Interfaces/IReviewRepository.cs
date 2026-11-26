@@ -14,6 +14,15 @@ public interface IReviewRepository
 
     Task<Review?> GetByIdAndUserIdAsync(int id, int userId);
 
+    Task<Review?> GetByUserAndMediaAsync(
+        int userId,
+        int tmdbId,
+        MediaType type);
+
+    Task<CommentReaction?> GetReactionAsync(
+        int reviewId,
+        int userId);
+
     Task<bool> UserExistsAsync(int userId);
 
     Task<bool> ExistsAsync(
@@ -24,7 +33,13 @@ public interface IReviewRepository
 
     Task AddAsync(Review review);
 
+    Task AddReactionAsync(CommentReaction reaction);
+
     void Delete(Review review);
+
+    void DeleteReaction(CommentReaction reaction);
+
+    void DeleteReactions(IEnumerable<CommentReaction> reactions);
 
     Task SaveChangesAsync();
 }
